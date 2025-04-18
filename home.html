@@ -1,0 +1,198 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>烹饪腥味得分值测算工具</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+            position: relative;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            position: relative;
+            z-index: 1;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            background-color: white;
+        }
+        button {
+            background-color: #4CAF50;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            background-color: #e9f7ef;
+            border-radius: 4px;
+            display: none;
+        }
+        .watermark {
+            position: fixed;
+            top: 10%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-30deg);
+            font-size: 30px;
+            color: rgba(0, 0, 0, 0.1);
+            z-index: 0;
+            pointer-events: none;
+            white-space: nowrap;
+            font-weight: bold;
+        }
+        .copyright {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 14px;
+            color: red;
+            padding: 10px;
+            font-weight: bold;
+            border-top: 1px solid #eee;
+        }
+    </style>
+</head>
+<body>
+    <div class="watermark">COFOC NHRI OIL＆FAT R＆D CENTER</div>
+    
+    <div class="container">
+        <h1>烹饪腥味得分值测算工具</h1>
+        
+        <div class="form-group">
+            <label for="av">酸价 (AV):</label>
+            <input type="number" id="av" step="0.0001" placeholder="请输入酸价数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="pv">过氧 (PV):</label>
+            <input type="number" id="pv" step="0.0001" placeholder="请输入过氧数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="pav">茴香胺 (PAV):</label>
+            <input type="number" id="pav" step="0.0001" placeholder="请输入茴香胺数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="eb">共轭二烯 (EB):</label>
+            <input type="number" id="eb" step="0.0001" placeholder="请输入共轭二烯数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="ec">共轭三烯 (EC):</label>
+            <input type="number" id="ec" step="0.0001" placeholder="请输入共轭三烯数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="tan">羰基价 (TAN):</label>
+            <input type="number" id="tan" step="0.0001" placeholder="请输入羰基价数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="tbas">TBAS:</label>
+            <input type="number" id="tbas" step="0.0001" placeholder="请输入TBAS数值">
+        </div>
+        
+        <div class="form-group">
+            <label for="process">选择工艺:</label>
+            <select id="process">
+                <option value="1">工艺1: 0反工艺</option>
+                <option value="2">工艺2: 极度精炼工艺</option>
+            </select>
+        </div>
+        
+        <button onclick="calculateScore()">计算腥味得分值</button>
+        
+        <div id="result" class="result">
+            <h3>计算结果:</h3>
+            <p id="score"></p>
+        </div>
+        
+        <div class="copyright">
+            COFOC NHRI OIL＆FAT R＆D CENTER 版权所有，严禁外传
+        </div>
+    </div>
+
+    <script>
+        function calculateScore() {
+            // 获取输入值
+            const av = parseFloat(document.getElementById('av').value);
+            const pv = parseFloat(document.getElementById('pv').value);
+            const pav = parseFloat(document.getElementById('pav').value);
+            const eb = parseFloat(document.getElementById('eb').value);
+            const ec = parseFloat(document.getElementById('ec').value);
+            const tan = parseFloat(document.getElementById('tan').value);
+            const tbas = parseFloat(document.getElementById('tbas').value);
+            const process = document.getElementById('process').value;
+            
+            // 验证输入
+            if (isNaN(av) || isNaN(pv) || isNaN(pav) || isNaN(eb) || isNaN(ec) || isNaN(tan) || isNaN(tbas)) {
+                alert("请输入所有参数的数值！");
+                return;
+            }
+            
+            if (eb === 0) {
+                alert("共轭二烯(EB)不能为零！");
+                return;
+            }
+            
+            // 计算
+            const numerator = Math.sqrt((pav + tan + 1000 * tbas) * pav);
+            const denominator = (pv + eb + ec) + av;
+            const part1 = numerator / denominator;
+            const part2 = Math.pow(av / eb, 2);
+            let score = (part1 + part2 - 0.9938) / 0.6072;
+            
+            // 根据工艺调整结果
+            if (process === "2") {
+                score = score - 1;
+            }
+            
+            // 显示结果
+            document.getElementById('score').innerHTML = `腥味得分值: <strong>${score.toFixed(4)}</strong>`;
+            document.getElementById('result').style.display = 'block';
+        }
+    </script>
+</body>
+</html>
+
+
